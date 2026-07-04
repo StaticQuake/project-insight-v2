@@ -1,0 +1,5 @@
+streamlit
+pyathena
+boto3
+pandas
+plotly
