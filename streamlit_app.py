@@ -310,41 +310,44 @@ with tab_movies:
     section("02", "Popularity Movers — Last 7 Days")
     st.markdown('<div class="section-caption">This data only exists because of our daily snapshots — no public source tracks this</div>', unsafe_allow_html=True)
 
-    insight(f"<b>{gainers['title'].iloc[0]}</b> had the biggest gain — up <b>+{gainers['popularity_change'].iloc[0]:.1f} points</b> ({gainers['pct_change'].iloc[0]:.1f}%) over the last 7 days.", "green")
+    if gainers.empty or losers.empty:
+        st.markdown('<div class="section-caption" style="opacity:0.6;">Not enough historical data yet — this section needs 7+ days of daily snapshots to compute movement. Check back once the pipeline has run for a week.</div>', unsafe_allow_html=True)
+    else:
+        insight(f"<b>{gainers['title'].iloc[0]}</b> had the biggest gain — up <b>+{gainers['popularity_change'].iloc[0]:.1f} points</b> ({gainers['pct_change'].iloc[0]:.1f}%) over the last 7 days.", "green")
 
-    col_g, col_l = st.columns(2)
+        col_g, col_l = st.columns(2)
 
-    with col_g:
-        st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#50c878;text-transform:uppercase;margin-bottom:12px;'>▲ Biggest Gainers</div>", unsafe_allow_html=True)
-        fig_g = go.Figure(go.Bar(
-            x=gainers['popularity_change'], y=gainers['display_title'], orientation='h',
-            marker=dict(color=gainers['popularity_change'],
-                colorscale=[[0,'#0d2010'],[0.5,'#1a4a20'],[1,'#50c878']], line=dict(width=0)),
-            customdata=gainers[['popularity_7d_ago','popularity_today','pct_change']].values,
-            hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Change: <b>+%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
-            text=[f'+{v:.1f}' for v in gainers['popularity_change']], textposition='outside',
-            textfont=dict(color=GREEN, size=10, family='DM Mono, monospace')
-        ))
-        lg = base_layout(460)
-        lg['yaxis']['autorange'] = 'reversed'
-        fig_g.update_layout(**lg)
-        st.plotly_chart(fig_g, use_container_width=True)
+        with col_g:
+            st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#50c878;text-transform:uppercase;margin-bottom:12px;'>▲ Biggest Gainers</div>", unsafe_allow_html=True)
+            fig_g = go.Figure(go.Bar(
+                x=gainers['popularity_change'], y=gainers['display_title'], orientation='h',
+                marker=dict(color=gainers['popularity_change'],
+                    colorscale=[[0,'#0d2010'],[0.5,'#1a4a20'],[1,'#50c878']], line=dict(width=0)),
+                customdata=gainers[['popularity_7d_ago','popularity_today','pct_change']].values,
+                hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Change: <b>+%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
+                text=[f'+{v:.1f}' for v in gainers['popularity_change']], textposition='outside',
+                textfont=dict(color=GREEN, size=10, family='DM Mono, monospace')
+            ))
+            lg = base_layout(460)
+            lg['yaxis']['autorange'] = 'reversed'
+            fig_g.update_layout(**lg)
+            st.plotly_chart(fig_g, use_container_width=True)
 
-    with col_l:
-        st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#e85050;text-transform:uppercase;margin-bottom:12px;'>▼ Biggest Losers</div>", unsafe_allow_html=True)
-        fig_l = go.Figure(go.Bar(
-            x=losers['popularity_drop'], y=losers['display_title'], orientation='h',
-            marker=dict(color=losers['popularity_drop'],
-                colorscale=[[0,'#200d0d'],[0.5,'#4a1a1a'],[1,'#e85050']], line=dict(width=0)),
-            customdata=losers[['popularity_7d_ago','popularity_today','pct_drop']].values,
-            hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Drop: <b>-%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
-            text=[f'-{v:.1f}' for v in losers['popularity_drop']], textposition='outside',
-            textfont=dict(color=RED, size=10, family='DM Mono, monospace')
-        ))
-        ll = base_layout(460)
-        ll['yaxis']['autorange'] = 'reversed'
-        fig_l.update_layout(**ll)
-        st.plotly_chart(fig_l, use_container_width=True)
+        with col_l:
+            st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#e85050;text-transform:uppercase;margin-bottom:12px;'>▼ Biggest Losers</div>", unsafe_allow_html=True)
+            fig_l = go.Figure(go.Bar(
+                x=losers['popularity_drop'], y=losers['display_title'], orientation='h',
+                marker=dict(color=losers['popularity_drop'],
+                    colorscale=[[0,'#200d0d'],[0.5,'#4a1a1a'],[1,'#e85050']], line=dict(width=0)),
+                customdata=losers[['popularity_7d_ago','popularity_today','pct_drop']].values,
+                hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Drop: <b>-%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
+                text=[f'-{v:.1f}' for v in losers['popularity_drop']], textposition='outside',
+                textfont=dict(color=RED, size=10, family='DM Mono, monospace')
+            ))
+            ll = base_layout(460)
+            ll['yaxis']['autorange'] = 'reversed'
+            fig_l.update_layout(**ll)
+            st.plotly_chart(fig_l, use_container_width=True)
 
     divider()
 
