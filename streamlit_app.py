@@ -271,11 +271,18 @@ with tab_movies:
     with c1:
         st.markdown(f'<div class="metric-card"><div class="metric-label">Movies Tracked</div><div class="metric-value">10,449</div><div class="metric-sub">2020 – 2026</div></div>', unsafe_allow_html=True)
     with c2:
-        st.markdown(f'<div class="metric-card blue"><div class="metric-label">Most Popular Today</div><div class="metric-value sm">{top10["title"].iloc[0]}</div><div class="metric-sub blue">Score · {top10["popularity"].iloc[0]:.1f}</div></div>', unsafe_allow_html=True)
+        if not top10.empty:
+            st.markdown(f'<div class="metric-card blue"><div class="metric-label">Most Popular Today</div><div class="metric-value sm">{top10["title"].iloc[0]}</div><div class="metric-sub blue">Score · {top10["popularity"].iloc[0]:.1f}</div></div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="metric-card blue"><div class="metric-label">Most Popular Today</div><div class="metric-value sm">—</div><div class="metric-sub blue">No data yet</div></div>', unsafe_allow_html=True)
     with c3:
-        st.markdown(f'<div class="metric-card green"><div class="metric-label">Biggest Gainer (7d)</div><div class="metric-value sm">{gainers["title"].iloc[0]}</div><div class="metric-sub green">+{gainers["popularity_change"].iloc[0]:.1f} pts</div></div>', unsafe_allow_html=True)
+        if not gainers.empty:
+            st.markdown(f'<div class="metric-card green"><div class="metric-label">Biggest Gainer (7d)</div><div class="metric-value sm">{gainers["title"].iloc[0]}</div><div class="metric-sub green">+{gainers["popularity_change"].iloc[0]:.1f} pts</div></div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="metric-card green"><div class="metric-label">Biggest Gainer (7d)</div><div class="metric-value sm">—</div><div class="metric-sub green">Needs 7 days of data</div></div>', unsafe_allow_html=True)
     with c4:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Days of Trend Data</div><div class="metric-value">{m_days["days"][0]}</div><div class="metric-sub">~{int(m_days["days"][0])*10430:,} total rows</div></div>', unsafe_allow_html=True)
+        days_val = m_days["days"][0] if not m_days.empty and len(m_days) > 0 else 0
+        st.markdown(f'<div class="metric-card"><div class="metric-label">Days of Trend Data</div><div class="metric-value">{days_val}</div><div class="metric-sub">~{int(days_val)*10430:,} total rows</div></div>', unsafe_allow_html=True)
 
     divider()
 
