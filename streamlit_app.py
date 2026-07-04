@@ -290,19 +290,22 @@ with tab_movies:
     section("01", "Top 10 Most Popular Today")
     st.markdown('<div class="section-caption">Ranked by TMDB popularity score — updated daily at 9 PM IST</div>', unsafe_allow_html=True)
 
-    fig1 = go.Figure(go.Bar(
-        x=top10['popularity'], y=top10['display_title'], orientation='h',
-        marker=dict(color=top10['popularity'],
-            colorscale=[[0,'#1a2a1a'],[0.5,'#2d6a2d'],[1,'#50c878']], line=dict(width=0)),
-        customdata=top10[['vote_average','vote_count']].values,
-        hovertemplate='<b>%{y}</b><br>Popularity: %{x:.1f}<br>Rating: %{customdata[0]:.1f} / 10<br>Votes: %{customdata[1]:,}<extra></extra>',
-        text=top10['popularity'].round(1), textposition='outside',
-        textfont=dict(color=FONT_COL, size=11, family='DM Mono, monospace')
-    ))
-    l1 = base_layout(420)
-    l1['yaxis']['autorange'] = 'reversed'
-    fig1.update_layout(**l1)
-    st.plotly_chart(fig1, use_container_width=True)
+    if top10.empty:
+        st.markdown('<div class="section-caption" style="opacity:0.6;">No data available yet for today\'s snapshot.</div>', unsafe_allow_html=True)
+    else:
+        fig1 = go.Figure(go.Bar(
+            x=top10['popularity'], y=top10['display_title'], orientation='h',
+            marker=dict(color=top10['popularity'],
+                colorscale=[[0,'#1a2a1a'],[0.5,'#2d6a2d'],[1,'#50c878']], line=dict(width=0)),
+            customdata=top10[['vote_average','vote_count']].values,
+            hovertemplate='<b>%{y}</b><br>Popularity: %{x:.1f}<br>Rating: %{customdata[0]:.1f} / 10<br>Votes: %{customdata[1]:,}<extra></extra>',
+            text=top10['popularity'].round(1), textposition='outside',
+            textfont=dict(color=FONT_COL, size=11, family='DM Mono, monospace')
+        ))
+        l1 = base_layout(420)
+        l1['yaxis']['autorange'] = 'reversed'
+        fig1.update_layout(**l1)
+        st.plotly_chart(fig1, use_container_width=True)
 
     divider()
 
@@ -638,11 +641,18 @@ with tab_tv:
     with c1:
         st.markdown(f'<div class="metric-card"><div class="metric-label">TV Shows Tracked</div><div class="metric-value">10,332</div><div class="metric-sub">2020 – 2026</div></div>', unsafe_allow_html=True)
     with c2:
-        st.markdown(f'<div class="metric-card blue"><div class="metric-label">Most Popular Today</div><div class="metric-value sm">{tv_top10["name"].iloc[0]}</div><div class="metric-sub blue">Score · {tv_top10["popularity"].iloc[0]:.1f}</div></div>', unsafe_allow_html=True)
+        if not tv_top10.empty:
+            st.markdown(f'<div class="metric-card blue"><div class="metric-label">Most Popular Today</div><div class="metric-value sm">{tv_top10["name"].iloc[0]}</div><div class="metric-sub blue">Score · {tv_top10["popularity"].iloc[0]:.1f}</div></div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="metric-card blue"><div class="metric-label">Most Popular Today</div><div class="metric-value sm">—</div><div class="metric-sub blue">No data yet</div></div>', unsafe_allow_html=True)
     with c3:
-        st.markdown(f'<div class="metric-card green"><div class="metric-label">Biggest Gainer (7d)</div><div class="metric-value sm">{tv_gainers["name"].iloc[0]}</div><div class="metric-sub green">+{tv_gainers["popularity_change"].iloc[0]:.1f} pts</div></div>', unsafe_allow_html=True)
+        if not tv_gainers.empty:
+            st.markdown(f'<div class="metric-card green"><div class="metric-label">Biggest Gainer (7d)</div><div class="metric-value sm">{tv_gainers["name"].iloc[0]}</div><div class="metric-sub green">+{tv_gainers["popularity_change"].iloc[0]:.1f} pts</div></div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="metric-card green"><div class="metric-label">Biggest Gainer (7d)</div><div class="metric-value sm">—</div><div class="metric-sub green">Needs 7 days of data</div></div>', unsafe_allow_html=True)
     with c4:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Days of Trend Data</div><div class="metric-value">{tv_days["days"][0]}</div><div class="metric-sub">~{int(tv_days["days"][0])*10303:,} total rows</div></div>', unsafe_allow_html=True)
+        tv_days_val = tv_days["days"][0] if not tv_days.empty and len(tv_days) > 0 else 0
+        st.markdown(f'<div class="metric-card"><div class="metric-label">Days of Trend Data</div><div class="metric-value">{tv_days_val}</div><div class="metric-sub">~{int(tv_days_val)*10303:,} total rows</div></div>', unsafe_allow_html=True)
 
     divider()
 
@@ -650,19 +660,22 @@ with tab_tv:
     section("01", "Top 10 Most Popular Today")
     st.markdown('<div class="section-caption">Ranked by TMDB popularity score — updated daily at 9 PM IST</div>', unsafe_allow_html=True)
 
-    fig_tv1 = go.Figure(go.Bar(
-        x=tv_top10['popularity'], y=tv_top10['display_title'], orientation='h',
-        marker=dict(color=tv_top10['popularity'],
-            colorscale=[[0,'#1a1530'],[0.5,'#2d2a6a'],[1,'#9b59b6']], line=dict(width=0)),
-        customdata=tv_top10[['vote_average','vote_count']].values,
-        hovertemplate='<b>%{y}</b><br>Popularity: %{x:.1f}<br>Rating: %{customdata[0]:.1f} / 10<br>Votes: %{customdata[1]:,}<extra></extra>',
-        text=tv_top10['popularity'].round(1), textposition='outside',
-        textfont=dict(color=FONT_COL, size=11, family='DM Mono, monospace')
-    ))
-    l_tv1 = base_layout(420)
-    l_tv1['yaxis']['autorange'] = 'reversed'
-    fig_tv1.update_layout(**l_tv1)
-    st.plotly_chart(fig_tv1, use_container_width=True)
+    if tv_top10.empty:
+        st.markdown('<div class="section-caption" style="opacity:0.6;">No data available yet for today\'s snapshot.</div>', unsafe_allow_html=True)
+    else:
+        fig_tv1 = go.Figure(go.Bar(
+            x=tv_top10['popularity'], y=tv_top10['display_title'], orientation='h',
+            marker=dict(color=tv_top10['popularity'],
+                colorscale=[[0,'#1a1530'],[0.5,'#2d2a6a'],[1,'#9b59b6']], line=dict(width=0)),
+            customdata=tv_top10[['vote_average','vote_count']].values,
+            hovertemplate='<b>%{y}</b><br>Popularity: %{x:.1f}<br>Rating: %{customdata[0]:.1f} / 10<br>Votes: %{customdata[1]:,}<extra></extra>',
+            text=tv_top10['popularity'].round(1), textposition='outside',
+            textfont=dict(color=FONT_COL, size=11, family='DM Mono, monospace')
+        ))
+        l_tv1 = base_layout(420)
+        l_tv1['yaxis']['autorange'] = 'reversed'
+        fig_tv1.update_layout(**l_tv1)
+        st.plotly_chart(fig_tv1, use_container_width=True)
 
     divider()
 
@@ -670,40 +683,43 @@ with tab_tv:
     section("02", "Popularity Movers — Last 7 Days")
     st.markdown('<div class="section-caption">This data only exists because of our daily snapshots — no public source tracks this</div>', unsafe_allow_html=True)
 
-    insight(f"<b>{tv_gainers['name'].iloc[0]}</b> had the biggest gain — up <b>+{tv_gainers['popularity_change'].iloc[0]:.1f} points</b> ({tv_gainers['pct_change'].iloc[0]:.1f}%) over the last 7 days.", "green")
+    if tv_gainers.empty or tv_losers.empty:
+        st.markdown('<div class="section-caption" style="opacity:0.6;">Not enough historical data yet — this section needs 7+ days of daily snapshots to compute movement. Check back once the pipeline has run for a week.</div>', unsafe_allow_html=True)
+    else:
+        insight(f"<b>{tv_gainers['name'].iloc[0]}</b> had the biggest gain — up <b>+{tv_gainers['popularity_change'].iloc[0]:.1f} points</b> ({tv_gainers['pct_change'].iloc[0]:.1f}%) over the last 7 days.", "green")
 
-    col_g, col_l = st.columns(2)
-    with col_g:
-        st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#50c878;text-transform:uppercase;margin-bottom:12px;'>▲ Biggest Gainers</div>", unsafe_allow_html=True)
-        fig_tvg = go.Figure(go.Bar(
-            x=tv_gainers['popularity_change'], y=tv_gainers['display_title'], orientation='h',
-            marker=dict(color=tv_gainers['popularity_change'],
-                colorscale=[[0,'#0d2010'],[0.5,'#1a4a20'],[1,'#50c878']], line=dict(width=0)),
-            customdata=tv_gainers[['popularity_7d_ago','popularity_today','pct_change']].values,
-            hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Change: <b>+%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
-            text=[f'+{v:.1f}' for v in tv_gainers['popularity_change']], textposition='outside',
-            textfont=dict(color=GREEN, size=10, family='DM Mono, monospace')
-        ))
-        lg_tv = base_layout(460)
-        lg_tv['yaxis']['autorange'] = 'reversed'
-        fig_tvg.update_layout(**lg_tv)
-        st.plotly_chart(fig_tvg, use_container_width=True)
+        col_g, col_l = st.columns(2)
+        with col_g:
+            st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#50c878;text-transform:uppercase;margin-bottom:12px;'>▲ Biggest Gainers</div>", unsafe_allow_html=True)
+            fig_tvg = go.Figure(go.Bar(
+                x=tv_gainers['popularity_change'], y=tv_gainers['display_title'], orientation='h',
+                marker=dict(color=tv_gainers['popularity_change'],
+                    colorscale=[[0,'#0d2010'],[0.5,'#1a4a20'],[1,'#50c878']], line=dict(width=0)),
+                customdata=tv_gainers[['popularity_7d_ago','popularity_today','pct_change']].values,
+                hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Change: <b>+%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
+                text=[f'+{v:.1f}' for v in tv_gainers['popularity_change']], textposition='outside',
+                textfont=dict(color=GREEN, size=10, family='DM Mono, monospace')
+            ))
+            lg_tv = base_layout(460)
+            lg_tv['yaxis']['autorange'] = 'reversed'
+            fig_tvg.update_layout(**lg_tv)
+            st.plotly_chart(fig_tvg, use_container_width=True)
 
-    with col_l:
-        st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#e85050;text-transform:uppercase;margin-bottom:12px;'>▼ Biggest Losers</div>", unsafe_allow_html=True)
-        fig_tvl = go.Figure(go.Bar(
-            x=tv_losers['popularity_drop'], y=tv_losers['display_title'], orientation='h',
-            marker=dict(color=tv_losers['popularity_drop'],
-                colorscale=[[0,'#200d0d'],[0.5,'#4a1a1a'],[1,'#e85050']], line=dict(width=0)),
-            customdata=tv_losers[['popularity_7d_ago','popularity_today','pct_drop']].values,
-            hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Drop: <b>-%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
-            text=[f'-{v:.1f}' for v in tv_losers['popularity_drop']], textposition='outside',
-            textfont=dict(color=RED, size=10, family='DM Mono, monospace')
-        ))
-        ll_tv = base_layout(460)
-        ll_tv['yaxis']['autorange'] = 'reversed'
-        fig_tvl.update_layout(**ll_tv)
-        st.plotly_chart(fig_tvl, use_container_width=True)
+        with col_l:
+            st.markdown("<div style='font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;color:#e85050;text-transform:uppercase;margin-bottom:12px;'>▼ Biggest Losers</div>", unsafe_allow_html=True)
+            fig_tvl = go.Figure(go.Bar(
+                x=tv_losers['popularity_drop'], y=tv_losers['display_title'], orientation='h',
+                marker=dict(color=tv_losers['popularity_drop'],
+                    colorscale=[[0,'#200d0d'],[0.5,'#4a1a1a'],[1,'#e85050']], line=dict(width=0)),
+                customdata=tv_losers[['popularity_7d_ago','popularity_today','pct_drop']].values,
+                hovertemplate='<b>%{y}</b><br>7 days ago: %{customdata[0]:.1f}<br>Today: %{customdata[1]:.1f}<br>Drop: <b>-%{x:.1f}</b> pts (%{customdata[2]:.1f}%)<extra></extra>',
+                text=[f'-{v:.1f}' for v in tv_losers['popularity_drop']], textposition='outside',
+                textfont=dict(color=RED, size=10, family='DM Mono, monospace')
+            ))
+            ll_tv = base_layout(460)
+            ll_tv['yaxis']['autorange'] = 'reversed'
+            fig_tvl.update_layout(**ll_tv)
+            st.plotly_chart(fig_tvl, use_container_width=True)
 
     divider()
 
